@@ -6,9 +6,13 @@ const router = express.Router();
 
 router.post('/login', async(req,res,next)=>{
    const {email, password} = req.body
-   const instructor = await registerModel.find({email:email, password:password})
+   const instructor = await registerModel.findOne({email:email, password:password,role:"instructor"})
+   console.log(instructor)
    if(instructor){
-    res.json({message:"logged in", instructor})
+    res.json({message:"Instructor logged in", instructor})
+   }
+   else if(!instructor){
+    res.json({message:"failed login"})
    }
 })
 

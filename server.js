@@ -8,10 +8,14 @@ const registerRoute = require('./routes/register.js')
 const instructorRoute = require('./routes/routes.js')
 const studentRoute = require('./routes/student.js')
 const {db} = require('./config/db.js');
+
+
 dotenv.config()
 const app = express()
+
 //DATABASE
 db
+
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(express.json())

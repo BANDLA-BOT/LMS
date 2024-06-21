@@ -7,7 +7,8 @@ const register = new mongoose.Schema({
     },
     email:{
         type:String,
-        required:true
+        required:true,
+        lowercase:true
     },
     password:{
         type:String,
@@ -15,8 +16,10 @@ const register = new mongoose.Schema({
     },
     role:{
         type:String,
-        required:true
-    }
+        required:true,
+        lowercase:true
+    },
+    courseDetails:[{ type:mongoose.Schema.Types.ObjectId, ref:"course"}]
 },{timestamps:true})
 
 const courseDetails = new mongoose.Schema({

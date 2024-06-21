@@ -15,26 +15,41 @@ router.post('/login', function _callee(req, res, next) {
           _req$body = req.body, email = _req$body.email, password = _req$body.password, role = _req$body.role;
 
           if (!(role === 'admin')) {
-            _context.next = 7;
+            _context.next = 9;
             break;
           }
 
           _context.next = 4;
-          return regeneratorRuntime.awrap(registerModel.find({
-            role: role
+          return regeneratorRuntime.awrap(registerModel.findOne({
+            role: role,
+            email: email,
+            password: password
           }));
 
         case 4:
           admin = _context.sent;
           console.log(admin);
 
-          if (admin.password === password && admin.email === email) {
+          if (admin) {
             res.json({
-              message: "logged in"
+              message: "Admin logged in"
+            });
+          } else if (!admin) {
+            res.json({
+              message: "Error while login"
             });
           }
 
-        case 7:
+          _context.next = 11;
+          break;
+
+        case 9:
+          res.json({
+            message: "Error while log in "
+          });
+          console.log("error");
+
+        case 11:
         case "end":
           return _context.stop();
       }
@@ -69,6 +84,33 @@ router.get('/getall', function _callee2(req, res) {
         case 7:
         case "end":
           return _context2.stop();
+      }
+    }
+  });
+});
+router["delete"]('/deleteuser/:id', function _callee3(req, res) {
+  var id, user;
+  return regeneratorRuntime.async(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          id = req.params.id;
+          console.log(id);
+          _context3.next = 4;
+          return regeneratorRuntime.awrap(registerModel.deleteOne({
+            _id: id
+          }));
+
+        case 4:
+          user = _context3.sent;
+          res.json({
+            message: "user",
+            user: user
+          });
+
+        case 6:
+        case "end":
+          return _context3.stop();
       }
     }
   });

@@ -20,22 +20,28 @@ router.post('/login', function _callee(req, res, next) {
         case 0:
           _req$body = req.body, email = _req$body.email, password = _req$body.password;
           _context.next = 3;
-          return regeneratorRuntime.awrap(registerModel.find({
+          return regeneratorRuntime.awrap(registerModel.findOne({
             email: email,
-            password: password
+            password: password,
+            role: "instructor"
           }));
 
         case 3:
           instructor = _context.sent;
+          console.log(instructor);
 
           if (instructor) {
             res.json({
-              message: "logged in",
+              message: "Instructor logged in",
               instructor: instructor
+            });
+          } else if (!instructor) {
+            res.json({
+              message: "failed login"
             });
           }
 
-        case 5:
+        case 6:
         case "end":
           return _context.stop();
       }
