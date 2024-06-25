@@ -26,6 +26,7 @@ app.use('/admin', adminRoute)
 app.use('/instructor', instructorRoute)
 app.use('/student', studentRoute)
 
+
 app.listen(process.env.PORT, ()=>{
     console.log("Server connected on " + process.env.PORT)
 })

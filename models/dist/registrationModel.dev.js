@@ -1,6 +1,15 @@
 "use strict";
 
-var mongoose = require('mongoose');
+var mongoose = require("mongoose"); //courseModel
+
+
+var courseDetails = new mongoose.Schema({
+  coursename: String,
+  coursetype: String,
+  courseduration: String
+}, {
+  timestamps: true
+}); //registerModel
 
 var register = new mongoose.Schema({
   username: {
@@ -21,24 +30,39 @@ var register = new mongoose.Schema({
     required: true,
     lowercase: true
   },
-  courseDetails: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "course"
+  profile: {
+    type: String
+  },
+  purchases: [{
+    course: [courseDetails]
+  }, {
+    completed: {
+      type: Boolean,
+      "default": false
+    }
   }]
 }, {
   timestamps: true
+}); //wishlistModel
+
+var wishlist = mongoose.Schema({
+  list: [courseDetails],
+  studentEmail: {
+    type: String
+  },
+  studentUsername: {
+    type: String
+  },
+  studentId: {
+    type: String
+  }
 });
-var courseDetails = new mongoose.Schema({
-  coursename: String,
-  coursetype: String,
-  courseduration: String
-}, {
-  timestamps: true
-});
-var registerModel = mongoose.model('user', register);
-var courseModel = mongoose.model('course', courseDetails);
+var wishlistModel = mongoose.model("wishlist", wishlist);
+var registerModel = mongoose.model("user", register);
+var courseModel = mongoose.model("course", courseDetails);
 module.exports = {
   registerModel: registerModel,
-  courseModel: courseModel
+  courseModel: courseModel,
+  wishlistModel: wishlistModel
 };
 //# sourceMappingURL=registrationModel.dev.js.map
