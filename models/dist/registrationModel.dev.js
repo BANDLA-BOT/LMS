@@ -6,9 +6,11 @@ var mongoose = require("mongoose"); //courseModel
 var courseDetails = new mongoose.Schema({
   coursename: String,
   coursetype: String,
-  courseduration: String
-}, {
-  timestamps: true
+  courseduration: String,
+  createdAt: {
+    type: Date,
+    "default": Date.now()
+  }
 }); //registerModel
 
 var register = new mongoose.Schema({
@@ -32,37 +34,59 @@ var register = new mongoose.Schema({
   },
   profile: {
     type: String
-  },
-  purchases: [{
-    course: [courseDetails]
-  }, {
-    completed: {
-      type: Boolean,
-      "default": false
-    }
-  }]
+  }
 }, {
   timestamps: true
-}); //wishlistModel
-
+});
 var wishlist = mongoose.Schema({
-  list: [courseDetails],
-  studentEmail: {
-    type: String
+  _id: false,
+  coursename: String,
+  courseduration: String,
+  coursetype: String
+});
+var courseDetailsSchema = new mongoose.Schema({
+  courseName: {
+    type: String,
+    required: true
   },
-  studentUsername: {
-    type: String
+  courseType: {
+    type: String,
+    required: true
   },
-  studentId: {
-    type: String
+  courseDuration: {
+    type: String,
+    required: true
+  },
+  completed: {
+    type: Boolean,
+    "default": false
   }
 });
-var wishlistModel = mongoose.model("wishlist", wishlist);
+var student = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  profile: {
+    type: String
+  },
+  purchases: [courseDetailsSchema],
+  wishlist: [wishlist]
+});
+var studentModel = mongoose.model('student', student);
 var registerModel = mongoose.model("user", register);
 var courseModel = mongoose.model("course", courseDetails);
 module.exports = {
   registerModel: registerModel,
   courseModel: courseModel,
-  wishlistModel: wishlistModel
+  studentModel: studentModel
 };
 //# sourceMappingURL=registrationModel.dev.js.map

@@ -3,7 +3,9 @@
 var router = require('express').Router();
 
 var _require = require('../models/registrationModel.js'),
-    registerModel = _require.registerModel;
+    registerModel = _require.registerModel,
+    studentModel = _require.studentModel; //Admin login
+
 
 router.post('/login', function _callee(req, res, next) {
   var _req$body, email, password, role, admin;
@@ -12,13 +14,8 @@ router.post('/login', function _callee(req, res, next) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
+          _context.prev = 0;
           _req$body = req.body, email = _req$body.email, password = _req$body.password, role = _req$body.role;
-
-          if (!(role === 'admin')) {
-            _context.next = 9;
-            break;
-          }
-
           _context.next = 4;
           return regeneratorRuntime.awrap(registerModel.findOne({
             role: role,
@@ -28,92 +25,134 @@ router.post('/login', function _callee(req, res, next) {
 
         case 4:
           admin = _context.sent;
-          console.log(admin);
 
-          if (admin) {
+          if (!admin) {
             res.json({
-              message: "Admin logged in"
-            });
-          } else if (!admin) {
-            res.json({
-              message: "Error while login"
+              message: "No user found "
             });
           }
 
-          _context.next = 11;
+          res.json({
+            message: "Admin logged in successfully",
+            admin: admin
+          });
+          _context.next = 12;
           break;
 
         case 9:
+          _context.prev = 9;
+          _context.t0 = _context["catch"](0);
           res.json({
-            message: "Error while log in "
+            error: _context.t0.message,
+            message: "Internal server error"
           });
-          console.log("error");
 
-        case 11:
+        case 12:
         case "end":
           return _context.stop();
       }
     }
-  });
-});
+  }, null, null, [[0, 9]]);
+}); //Admin can access all the user details
+
 router.get('/getall', function _callee2(req, res) {
   var students, instructors;
   return regeneratorRuntime.async(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
-          _context2.next = 2;
-          return regeneratorRuntime.awrap(registerModel.find({
-            role: "student"
-          }));
+          _context2.prev = 0;
+          _context2.next = 3;
+          return regeneratorRuntime.awrap(studentModel.find());
 
-        case 2:
+        case 3:
           students = _context2.sent;
-          _context2.next = 5;
+          _context2.next = 6;
           return regeneratorRuntime.awrap(registerModel.find({
             role: "instructor"
           }));
 
-        case 5:
+        case 6:
           instructors = _context2.sent;
+
+          if (!students) {
+            res.json({
+              message: "No Students found in DB"
+            });
+          }
+
+          if (!instructors) {
+            res.json({
+              message: "No instructors found in DB"
+            });
+          }
+
           res.json({
             students: students,
             instructors: instructors
           });
+          _context2.next = 15;
+          break;
 
-        case 7:
+        case 12:
+          _context2.prev = 12;
+          _context2.t0 = _context2["catch"](0);
+          res.status(500).json({
+            message: "Internal server error"
+          });
+
+        case 15:
         case "end":
           return _context2.stop();
       }
     }
-  });
-});
+  }, null, null, [[0, 12]]);
+}); //Admin can delete a user 
+
 router["delete"]('/deleteuser/:id', function _callee3(req, res) {
-  var id, user;
+  var id, user, student;
   return regeneratorRuntime.async(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
+          _context3.prev = 0;
           id = req.params.id;
           console.log(id);
-          _context3.next = 4;
+          _context3.next = 5;
           return regeneratorRuntime.awrap(registerModel.deleteOne({
             _id: id
           }));
 
-        case 4:
+        case 5:
           user = _context3.sent;
+          _context3.next = 8;
+          return regeneratorRuntime.awrap(studentModel.deleteOne({
+            _id: id
+          }));
+
+        case 8:
+          student = _context3.sent;
           res.json({
             message: "user",
-            user: user
+            user: user,
+            student: student
+          });
+          _context3.next = 15;
+          break;
+
+        case 12:
+          _context3.prev = 12;
+          _context3.t0 = _context3["catch"](0);
+          res.status(500).json({
+            message: "Internal server error"
           });
 
-        case 6:
+        case 15:
         case "end":
           return _context3.stop();
       }
     }
-  });
+  }, null, null, [[0, 12]]);
 });
 module.exports = router;
 //# sourceMappingURL=admin.dev.js.map

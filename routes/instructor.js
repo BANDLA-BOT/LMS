@@ -4,6 +4,8 @@ const {courseModel} = require('../models/registrationModel.js')
 const mongoose = require('mongoose')
 const router = express.Router();
 
+//Instructor login
+
 router.post('/login', async(req,res,next)=>{
    const {email, password} = req.body
    const instructor = await registerModel.findOne({email:email, password:password,role:"instructor"})
@@ -16,6 +18,8 @@ router.post('/login', async(req,res,next)=>{
    }
 })
 
+//Courses creation by instructor
+
 router.post('/create',async(req,res,next)=>{
     const { coursename, coursetype, courseduration} = req.body
     const createCourse = await courseModel.create({
@@ -24,7 +28,7 @@ router.post('/create',async(req,res,next)=>{
         courseduration:courseduration
     })
     .then((result) => {
-            res.json({success:result})
+            res.json({message:"Course created successfully", course:result})
     }).catch((err) => {
         console.log(err)
     });

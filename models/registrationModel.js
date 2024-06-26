@@ -5,8 +5,9 @@ const courseDetails = new mongoose.Schema(
       coursename: String,
       coursetype: String,
       courseduration: String,
+      createdAt:{type:Date, default:Date.now()}
     },
-    { timestamps: true }
+    
   );
 
 //registerModel
@@ -34,34 +35,50 @@ const register = new mongoose.Schema(
     profile: {
       type: String,
     },
-    purchases: [
-        {course:[courseDetails]},
-        {completed:{
-            type:Boolean,
-            default:false
-        }}
-    ],
   },
   { timestamps: true }
 );
 
-
-
-//wishlistModel
 const wishlist = mongoose.Schema({
-  list: [courseDetails],
-  studentEmail:{
-    type:String,
-  },
-  studentUsername:{
-    type:String
-  },
-  studentId:{
-    type:String
-  }
+    _id:false,
+    coursename:String,
+    courseduration:String,
+    coursetype:String,
 });
-const wishlistModel = mongoose.model("wishlist", wishlist);
+const courseDetailsSchema = new mongoose.Schema({
+  courseName: { type: String, required: true },
+  courseType: { type: String, required: true },
+  courseDuration: { type: String, required: true },
+  completed: { type: Boolean, default: false }
+});
+
+const student = new mongoose.Schema({
+    username:{
+      type:String,
+      required:true
+    },
+    email:{
+      type:String,
+      required:true,
+    },
+    password:{
+      type:String,
+      required:true
+    },
+    profile:{
+      type:String
+    },
+
+    purchases:[courseDetailsSchema],
+    wishlist:[wishlist]
+})
+
+
+
+
+
+const studentModel = mongoose.model('student', student)
 const registerModel = mongoose.model("user", register);
 const courseModel = mongoose.model("course", courseDetails);
 
-module.exports = { registerModel, courseModel, wishlistModel };
+module.exports = { registerModel, courseModel,studentModel};

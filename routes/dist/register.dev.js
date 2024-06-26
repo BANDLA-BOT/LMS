@@ -5,22 +5,24 @@ var router = require("express").Router();
 var sendEmail = require("../config/sendmail.js"); // const path = require('path')
 
 
-var multer = require('multer');
+var multer = require("multer");
 
 var _require = require("../models/registrationModel.js"),
-    registerModel = _require.registerModel;
+    registerModel = _require.registerModel; //multer to upload
+
 
 var storage = multer.diskStorage({
   destination: function destination(req, file, cb) {
-    cb(null, 'public/profile');
+    cb(null, "public/profile");
   },
   filename: function filename(req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+    cb(null, Date.now() + "-" + file.originalname);
   }
 });
 var upload = multer({
   storage: storage
-}).single('profile');
+}).single("profile"); //registration for Admin and Instructor
+
 router.post("/", upload, function _callee(req, res) {
   var _req$body, username, email, password, role, profile, user, text;
 

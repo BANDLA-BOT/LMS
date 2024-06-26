@@ -14,7 +14,7 @@ var adminRoute = require('./routes/admin.js');
 
 var registerRoute = require('./routes/register.js');
 
-var instructorRoute = require('./routes/routes.js');
+var instructorRoute = require('./routes/instructor.js');
 
 var studentRoute = require('./routes/student.js');
 
@@ -24,17 +24,19 @@ var _require = require('./config/db.js'),
 dotenv.config();
 var app = express(); //DATABASE
 
-db;
+db; //built in middlewares
+
 app.use(cors());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
-app.use(express.json()); //routes
+app.use(express.json()); //routes or API's
 
 app.use('/register', registerRoute);
 app.use('/admin', adminRoute);
 app.use('/instructor', instructorRoute);
-app.use('/student', studentRoute);
+app.use('/student', studentRoute); //server starting
+
 app.listen(process.env.PORT, function () {
   console.log("Server connected on " + process.env.PORT);
 });

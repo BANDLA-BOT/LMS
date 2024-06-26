@@ -1,24 +1,28 @@
 const router = require("express").Router();
 const sendEmail = require("../config/sendmail.js");
 // const path = require('path')
-const multer = require('multer')
+const multer = require("multer");
 const { registerModel } = require("../models/registrationModel.js");
 
-const storage = multer.diskStorage({
-  destination:(req,file,cb)=>{
-    cb(null, 'public/profile')
-  },
-  filename:(req,file,cb)=>{
-    cb(null, Date.now() + '-' +  file.originalname)
-  }
-})
-const upload =multer({
-  storage:storage
-}).single('profile')
+//multer to upload
 
-router.post("/", upload, async(req, res) => {
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/profile");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({
+  storage: storage,
+}).single("profile");
+
+//registration for Admin and Instructor
+
+router.post("/", upload, async (req, res) => {
   const { username, email, password, role } = req.body;
-  const profile = req.file.profile
+  const profile = req.file.profile;
 
   try {
     const user = new registerModel({
@@ -26,21 +30,18 @@ router.post("/", upload, async(req, res) => {
       username: username,
       password: password,
       role: role,
-      profile:profile,
+      profile: profile,
     });
-    await user.save()
-
-
+    await user.save();
     const text = `
     <h1>Registered successfully as <span>${user.role}</span></h1>
     <p>email:  ${user.email}</p>
     <p>password:  ${user.password}</p>
-    `
-    await sendEmail(email, "Registration", text)
-    res.json({message:"success", user})
-    
+    `;
+    await sendEmail(email, "Registration", text);
+    res.json({ message: "success", user });
   } catch (error) {
-    res.json({message:"Registration failed", error})
+    res.json({ message: "Registration failed", error });
   }
 });
 
