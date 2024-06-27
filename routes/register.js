@@ -1,28 +1,12 @@
 const router = require("express").Router();
 const sendEmail = require("../config/sendmail.js");
-// const path = require('path')
-const multer = require("multer");
 const { registerModel } = require("../models/registrationModel.js");
 
-//multer to upload
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/profile");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({
-  storage: storage,
-}).single("profile");
 
 //registration for Admin and Instructor
 
-router.post("/", upload, async (req, res) => {
+router.post("/",async (req, res) => {
   const { username, email, password, role } = req.body;
-  const profile = req.file.profile;
 
   try {
     const user = new registerModel({
@@ -30,7 +14,6 @@ router.post("/", upload, async (req, res) => {
       username: username,
       password: password,
       role: role,
-      profile: profile,
     });
     await user.save();
     const text = `

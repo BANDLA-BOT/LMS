@@ -40,15 +40,15 @@ const register = new mongoose.Schema(
 );
 
 const wishlist = mongoose.Schema({
-    _id:false,
     coursename:String,
     courseduration:String,
     coursetype:String,
 });
+
 const courseDetailsSchema = new mongoose.Schema({
-  courseName: { type: String, required: true },
-  courseType: { type: String, required: true },
-  courseDuration: { type: String, required: true },
+  coursename: { type: String, required: true },
+  coursetype: { type: String, required: true },
+  courseduration: { type: String, required: true },
   completed: { type: Boolean, default: false }
 });
 
@@ -64,9 +64,6 @@ const student = new mongoose.Schema({
     password:{
       type:String,
       required:true
-    },
-    profile:{
-      type:String
     },
 
     purchases:[courseDetailsSchema],

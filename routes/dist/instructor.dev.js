@@ -82,5 +82,28 @@ router.post('/create', function _callee2(req, res, next) {
     }
   });
 });
+router.get('/allCourses', function _callee3(req, res) {
+  var courses;
+  return regeneratorRuntime.async(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.next = 2;
+          return regeneratorRuntime.awrap(courseModel.find());
+
+        case 2:
+          courses = _context3.sent;
+          res.json({
+            message: "All the courses available in the DATABASE",
+            courses: courses
+          });
+
+        case 4:
+        case "end":
+          return _context3.stop();
+      }
+    }
+  });
+});
 module.exports = router;
 //# sourceMappingURL=instructor.dev.js.map

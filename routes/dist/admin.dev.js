@@ -4,7 +4,8 @@ var router = require('express').Router();
 
 var _require = require('../models/registrationModel.js'),
     registerModel = _require.registerModel,
-    studentModel = _require.studentModel; //Admin login
+    studentModel = _require.studentModel,
+    courseModel = _require.courseModel; //Admin login
 
 
 router.post('/login', function _callee(req, res, next) {
@@ -56,7 +57,7 @@ router.post('/login', function _callee(req, res, next) {
 }); //Admin can access all the user details
 
 router.get('/getall', function _callee2(req, res) {
-  var students, instructors;
+  var students, instructors, courses;
   return regeneratorRuntime.async(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
@@ -74,6 +75,11 @@ router.get('/getall', function _callee2(req, res) {
 
         case 6:
           instructors = _context2.sent;
+          _context2.next = 9;
+          return regeneratorRuntime.awrap(courseModel.find());
+
+        case 9:
+          courses = _context2.sent;
 
           if (!students) {
             res.json({
@@ -87,26 +93,33 @@ router.get('/getall', function _callee2(req, res) {
             });
           }
 
+          if (!courses) {
+            res.json({
+              message: "No instructors found in DB"
+            });
+          }
+
           res.json({
             students: students,
-            instructors: instructors
+            instructors: instructors,
+            courses: courses
           });
-          _context2.next = 15;
+          _context2.next = 19;
           break;
 
-        case 12:
-          _context2.prev = 12;
+        case 16:
+          _context2.prev = 16;
           _context2.t0 = _context2["catch"](0);
           res.status(500).json({
             message: "Internal server error"
           });
 
-        case 15:
+        case 19:
         case "end":
           return _context2.stop();
       }
     }
-  }, null, null, [[0, 12]]);
+  }, null, null, [[0, 16]]);
 }); //Admin can delete a user 
 
 router["delete"]('/deleteuser/:id', function _callee3(req, res) {

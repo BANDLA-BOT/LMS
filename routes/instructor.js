@@ -33,6 +33,10 @@ router.post('/create',async(req,res,next)=>{
         console.log(err)
     });
 })
+router.get('/allCourses', async(req,res)=>{
+    const courses = await courseModel.find()
+    res.json({message: "All the courses available in the DATABASE", courses:courses})
+})
 
 
 module.exports = router

@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const validate = require("../config/verifyToken.js");
-const path = require("path");
 const jwt = require("jsonwebtoken");
 const {
   registerModel,
@@ -8,33 +7,16 @@ const {
   studentModel,
 } = require("../models/registrationModel.js");
 
-//multer to upload profile picture
-
-const multer = require("multer");
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/profile");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + path.extname(file.originalname));
-  },
-});
-const upload = multer({
-  storage: storage,
-}).single("profile");
 
 //student registration
 
-router.post("/register", upload, async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    const profile = req.file.profile;
     const newStudent = new studentModel({
       username: username,
       password: password,
       email: email,
-      profile: profile,
     });
     await newStudent.save();
     res.json({
@@ -51,6 +33,7 @@ router.post("/register", upload, async (req, res) => {
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
+
     const student = await studentModel.findOne({
       email: email,
       password: password,
@@ -89,8 +72,9 @@ router.post("/purchase/:courseId/:studentId", validate, async (req, res) => {
   try {
     const { courseId, studentId } = req.params;
     const student = await studentModel.findById(studentId);
-    console.log(student);
+    // console.log(student);
     const course = await courseModel.findById(courseId);
+    console.log(course)
     if (!student || !course) {
       return res.status(400).json({ message: "User/Course not found " });
     }
@@ -103,6 +87,19 @@ router.post("/purchase/:courseId/:studentId", validate, async (req, res) => {
       .json({ message: "Internal server error", err: error.message });
   }
 });
+router.get('/purchases/:studentId', async(req,res)=>{
+  try {
+    const student = await studentModel.findById(req.params.studentId, 'purchases')
+    if(!student){
+      res.json({message:"No courses in the purchased list"})
+    }
+    res.json({message:"Your Purchases are", course: student})
+  } catch (error) {
+    res.status(500).json({message:"Internal server error "})
+  }
+ 
+
+})
 
 // user profile
 
@@ -110,7 +107,7 @@ router.get("/profile", validate, async (req, res) => {
   const user = req.user;
   console.log(user);
   const course = await courseModel.find();
-  res.json({ message: "Courses available are", courses: course });
+  res.json({ message: "Courses available are",  studentName: user.user.username, studentMail:user.user.email, courses: course, });
 });
 
 //categories
@@ -133,7 +130,7 @@ router.get("/categories", validate, async (req, res) => {
 router.put("/update/:id", async (req, res) => {
   const { email, password, username } = req.body;
   const id = req.params.id;
-  const user = await registerModel.updateOne(
+  const user = await studentModel.updateOne(
     { _id: id },
     { $set: { email: email, password: password, username: username } }
   );
@@ -146,7 +143,10 @@ router.get("/search/filter", async (req, res) => {
   try {
     const query = req.query.q;
     const course = await courseModel.find({
-      $or: [{ coursename: { $regex: query, $options: "i" } }],
+      $or: [
+        { coursename: { $regex: query, $options: "i" } },
+        {coursetype:{ $regex: query, $options: 'i'}},
+      ],
     });
     const instructor = await registerModel.find({
       $or: [{ username: { $regex: query, $options: "i" } }],
@@ -184,14 +184,18 @@ router.post("/wishlist/:courseId/:studentId", validate, async (req, res) => {
 
 router.get("/getwishlist", validate, async (req, res) => {
   const { email, password } = req.user.user;
-  const student = await studentModel.find({ email: email, password: password });
+  const student = await studentModel.find({ email: email, password: password }, 'wishlist');
+  console.log(student)
   try {
-    if (!student[0].wishlist.length) {
+    if (!student) {
       res.json({ message: "There are no courses in your wishlist" });
     }
-    res.json({ message: "Wishlist found", list: student[0].wishlist });
-  } catch (error) {}
+    res.json({ message: "Wishlist found", list: student});
+  } catch (error) {
+    res.status(500).json({message:"Internal server error"})
+  }
 });
+
 
 //certification
 
@@ -210,40 +214,25 @@ router.put("/certification/:courseId/:completed", validate, async (req, res) => 
     }
     res.json(student);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message});
   }
 });
-router.get('/getcertificate', validate, async(req,res)=>{
-  try {
-    const completedPurchases = await studentModel.aggregate([
-      { $unwind: '$purchases' },
-      { $match: { 'purchases.completed': true } },
-      {
-        $group: {
-          _id: '$_id',
-          email: { $first: '$email' },
-          username: { $first: '$username' },
-          completedPurchases: { $push: '$purchases' }
-        }
-      }
-    ]);
-    res.json(completedPurchases);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching completed purchases', error });
-  }
 
-  // const user = req.user
-  // const student = await studentModel.find({email:user.user.email, password:user.user.password})
-  // const isCompleted = student.purchases.completed
-  // try {
-  //   if(isCompleted){
-  //     const course = student[0].purchases
-  //     res.json({message:"You can access certificate", username:user.user.username, email:user.user.email,})
-  //   }
-  //   res.json({message:"You cannot Access certificate"})
-  // } catch (error) {
-    
-  // }
+
+//get certificate
+
+
+router.get('/getcertificate/:studentId', validate, async(req,res)=>{
+  try {
+    const student = await studentModel.findById({_id:req.params.studentId})
+    if(!student){
+      return res.status(404).json({ message: 'Student not found' });
+    }
+    const completedCourses = student.purchases.filter(purchases => purchases.completed);
+    res.json({message:"Courses Completed are", courses:completedCourses})
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching', error });
+  }
 })
 
 module.exports = router;

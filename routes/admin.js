@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const {registerModel, studentModel} = require('../models/registrationModel.js')
+const {registerModel, studentModel, courseModel} = require('../models/registrationModel.js')
 
 
 //Admin login
@@ -23,13 +23,17 @@ router.get('/getall', async(req,res)=>{
     try {
         const students = await studentModel.find()
         const instructors = await registerModel.find({role:"instructor"})
+        const courses = await courseModel.find()
         if(!students){
             res.json({message:"No Students found in DB"})
         }
         if(!instructors){
             res.json({message:"No instructors found in DB"})
         }
-        res.json({students:students, instructors:instructors})
+        if(!courses){
+            res.json({message:"No instructors found in DB"})
+        }
+        res.json({students:students, instructors:instructors, courses:courses})
     } catch (error) {
         res.status(500).json({message:"Internal server error"})
     }
